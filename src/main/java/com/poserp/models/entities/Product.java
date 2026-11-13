@@ -1,4 +1,4 @@
-package com.naufal.models.entities;
+package com.poserp.models.entities;
 
 import java.io.Serializable;
 

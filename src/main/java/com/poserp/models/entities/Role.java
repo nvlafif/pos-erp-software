@@ -1,4 +1,4 @@
-package com.naufal.models.entities;
+package com.poserp.models.entities;
 
 import java.io.Serializable;
 
@@ -9,18 +9,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "categories") 
-public class Category implements Serializable {
-    
+@Table(name = "roles") 
+public class Role implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
-    @Id
+    @Id 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
 
-    public Category() {
+    public Role() {
     }
 
     public static long getSerialversionuid() {
@@ -42,6 +42,6 @@ public class Category implements Serializable {
     public void setName(String name) {
         this.name = name;
     }
-     
     
+
 }
