@@ -16,27 +16,32 @@ public class Category implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    
     private Long id;
+
     private String name;
+
     public Category() {
     }
 
     public static long getSerialversionuid() {
         return serialVersionUID;
     }
-    public Long getId_category() {
+
+    public Long getId() {
         return id;
     }
-    public void setId_category(Long id_category) {
-        this.id = id_category;
+
+    public void setId(Long id) {
+        this.id = id;
     }
-    public String getName_category() {
+
+    public String getName() {
         return name;
     }
-    public void setName_category(String name_category) {
-        this.name = name_category;
+
+    public void setName(String name) {
+        this.name = name;
     }
-    
+     
     
 }
