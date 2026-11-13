@@ -1,7 +1,9 @@
 package com.poserp.models.entities;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,7 +23,10 @@ public class Product implements Serializable {
     private Long id;
 
     private String name;
-    private Double price;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal price;
+
     private Double stock;
     private String unit;
     private String image;
@@ -53,11 +58,11 @@ public class Product implements Serializable {
         this.name = name;
     }
 
-    public Double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
