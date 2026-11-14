@@ -7,18 +7,25 @@ import org.springframework.stereotype.Service;
 
 import com.poserp.models.entities.Category;
 import com.poserp.models.entities.Product;
+import com.poserp.models.entities.Unit;
 import com.poserp.repositories.CategoryRepository;
 import com.poserp.repositories.ProductRepository;
+import com.poserp.repositories.UnitRepository;
 
 @Service
 public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final UnitRepository unitRepository;
 
-    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository) {
+    public ProductService(
+            ProductRepository productRepository,
+            CategoryRepository categoryRepository,
+            UnitRepository unitRepository) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
+        this.unitRepository = unitRepository;
     }
 
     public List<Product> findAll() {
@@ -27,7 +34,7 @@ public class ProductService {
 
     public Product findById(Long id) {
         return productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Produk tidak ditemukan dengan ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Product not found : " + id));
     }
 
     public Product create(Product product) {
@@ -35,8 +42,14 @@ public class ProductService {
 
         if (product.getCategory() != null && product.getCategory().getId() != null) {
             Category category = categoryRepository.findById(product.getCategory().getId())
-                    .orElseThrow(() -> new RuntimeException("Kategori tidak ditemukan dengan ID: " + product.getCategory().getId()));
+                    .orElseThrow(() -> new RuntimeException("Category not found : " + product.getCategory().getId()));
             product.setCategory(category);
+        }
+
+        if (product.getUnit() != null && product.getUnit().getId() != null) {
+            Unit unit = unitRepository.findById(product.getUnit().getId())
+                    .orElseThrow(() -> new RuntimeException("Unit not found : " + product.getUnit().getId()));
+            product.setUnit(unit);
         }
 
         return productRepository.save(product);
@@ -49,13 +62,18 @@ public class ProductService {
         existingProduct.setName(productDetails.getName());
         existingProduct.setPrice(productDetails.getPrice());
         existingProduct.setStock(productDetails.getStock());
-        existingProduct.setUnit(productDetails.getUnit());
         existingProduct.setImage(productDetails.getImage());
 
         if (productDetails.getCategory() != null && productDetails.getCategory().getId() != null) {
             Category category = categoryRepository.findById(productDetails.getCategory().getId())
-                    .orElseThrow(() -> new RuntimeException("Kategori tidak ditemukan dengan ID: " + productDetails.getCategory().getId()));
+                    .orElseThrow(() -> new RuntimeException("Category not found : " + productDetails.getCategory().getId()));
             existingProduct.setCategory(category);
+        }
+
+        if (productDetails.getUnit() != null && productDetails.getUnit().getId() != null) {
+            Unit unit = unitRepository.findById(productDetails.getUnit().getId())
+                    .orElseThrow(() -> new RuntimeException("Unit not found : " + productDetails.getUnit().getId()));
+            existingProduct.setUnit(unit);
         }
 
         return productRepository.save(existingProduct);
@@ -68,10 +86,10 @@ public class ProductService {
 
     private void validateProduct(Product product) {
         if (product.getPrice() == null || product.getPrice().compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Harga produk tidak boleh kosong atau negatif");
+            throw new IllegalArgumentException("Product price cannot be null or negative");
         }
         if (product.getStock() == null || product.getStock() < 0) {
-            throw new IllegalArgumentException("Stok produk tidak boleh kosong atau negatif");
+            throw new IllegalArgumentException("Product stock cannot be null or negative");
         }
     }
 }
