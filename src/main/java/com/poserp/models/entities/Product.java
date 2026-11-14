@@ -28,7 +28,11 @@ public class Product implements Serializable {
     private BigDecimal price;
 
     private Double stock;
-    private String unit;
+    
+    @ManyToOne
+    @JoinColumn(name = "unit_id")
+    private Unit unit;
+
     private String image;
 
     @ManyToOne
@@ -74,11 +78,11 @@ public class Product implements Serializable {
         this.stock = stock;
     }
 
-    public String getUnit() {
+    public Unit getUnit() {
         return unit;
     }
 
-    public void setUnit(String unit) {
+    public void setUnit(Unit unit) {
         this.unit = unit;
     }
 
@@ -96,7 +100,9 @@ public class Product implements Serializable {
 
     public void setCategory(Category category) {
         this.category = category;
-    } 
+    }
+
+     
     
     
 }
