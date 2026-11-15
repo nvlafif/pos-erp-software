@@ -20,6 +20,14 @@ import com.poserp.repositories.CashierTransactionRepository;
 import com.poserp.repositories.ProductRepository;
 import com.poserp.repositories.UserRepository;
 
+// Tambahkan import berikut di bagian atas CashierTransactionService.java:
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.temporal.TemporalAdjusters;
+import com.poserp.models.dto.SalesReportResponse;
+
 @Service
 public class CashierTransactionService {
 
@@ -121,5 +129,85 @@ public class CashierTransactionService {
         detailRepository.saveAll(transactionDetails);
 
         return savedTransaction;
+    }
+
+    public SalesReportResponse getSalesReport(String period,Integer year,Integer month,LocalDate startDate,LocalDate endDate) {
+        LocalDate today = LocalDate.now();
+        LocalDate resolvedStart;
+        LocalDate resolvedEnd;
+        String normalizedPeriod;
+
+        // Jika period tidak diisi tetapi startDate & endDate dikirim, otomatis anggap CUSTOM
+        if (period == null || period.isBlank()) {
+            normalizedPeriod = (startDate != null && endDate != null) ? "CUSTOM" : "TODAY";
+        } else {
+            normalizedPeriod = period.trim().toUpperCase();
+        }
+
+        switch (normalizedPeriod) {
+            case "TODAY":
+                resolvedStart = today;
+                resolvedEnd = today;
+                break;
+
+            case "THIS_WEEK":
+                // Senin minggu ini sampai Minggu minggu ini
+                resolvedStart = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+                resolvedEnd = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+                break;
+
+            case "THIS_MONTH":
+                resolvedStart = today.withDayOfMonth(1);
+                resolvedEnd = today.with(TemporalAdjusters.lastDayOfMonth());
+                break;
+
+            case "THIS_YEAR":
+                resolvedStart = today.withDayOfYear(1);
+                resolvedEnd = today.with(TemporalAdjusters.lastDayOfYear());
+                break;
+
+            case "MONTH":
+                if (month == null || month < 1 || month > 12) {
+                    throw new IllegalArgumentException("Parameter 'month' wajib diisi antara 1 sampai 12");
+                }
+                int targetYear = (year != null) ? year : today.getYear();
+                YearMonth yearMonth = YearMonth.of(targetYear, month);
+                resolvedStart = yearMonth.atDay(1);
+                resolvedEnd = yearMonth.atEndOfMonth();
+                break;
+
+            case "CUSTOM":
+                if (startDate == null || endDate == null) {
+                    throw new IllegalArgumentException("Parameter 'startDate' dan 'endDate' wajib diisi untuk rentang custom");
+                }
+                if (startDate.isAfter(endDate)) {
+                    throw new IllegalArgumentException("'startDate' tidak boleh lebih besar dari 'endDate'");
+                }
+                resolvedStart = startDate;
+                resolvedEnd = endDate;
+                break;
+
+            default:
+                throw new IllegalArgumentException(
+                        "Pilihan period tidak valid. Gunakan: TODAY, THIS_WEEK, THIS_MONTH, THIS_YEAR, MONTH, atau CUSTOM");
+        }
+
+        LocalDateTime startDateTime = resolvedStart.atStartOfDay();
+        LocalDateTime endExclusiveDateTime = resolvedEnd.plusDays(1).atStartOfDay();
+
+        List<Object[]> results = transactionRepository.getSalesSummary(startDateTime, endExclusiveDateTime);
+        Object[] row = results.get(0);
+
+        Long totalTransactions = row[0] != null ? ((Number) row[0]).longValue() : 0L;
+        BigDecimal totalRevenue = row[1] != null ? (BigDecimal) row[1] : BigDecimal.ZERO;
+
+        return new SalesReportResponse(
+                normalizedPeriod,
+                resolvedStart,
+                resolvedEnd,
+                totalTransactions,
+                totalRevenue
+        );
+            
     }
 }
