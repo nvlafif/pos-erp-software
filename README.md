@@ -1,10 +1,10 @@
-# 🛒 POS-ERP Desktop Application
+# POS-ERP Desktop Application
 
 An integrated **Point-of-Sale (POS)** and **Enterprise Resource Planning (ERP)** desktop application built for retail and store operations. Designed for speed, accuracy, and operational reliability, this system streamlines inventory management, real-time cashier checkout, automated stock deduction, and flexible multi-period sales reporting.
 
 ---
 
-## 🚀 Tech Stack
+## Tech Stack
 
 * **Core Runtime & Language:** Java 21 LTS (Eclipse Temurin)
 * **Backend Core Engine:** Spring Boot (Spring Web, Spring Data JPA / Hibernate)
@@ -14,7 +14,7 @@ An integrated **Point-of-Sale (POS)** and **Enterprise Resource Planning (ERP)**
 
 ---
 
-## 🔄 Application Workflow
+## Application Workflow
 
 ```text
 [1. Master Data Setup] ──▶ [2. Cashier Checkout Input] ──▶ [3. Validation & Calculation]
@@ -30,7 +30,7 @@ An integrated **Point-of-Sale (POS)** and **Enterprise Resource Planning (ERP)**
 
 ---
 
-## ✨ Key Features
+## Key Features
 
 * **Master Data Management (CRUD):** Structured management for Products, Categories, Measurement Units, Users, and Roles.
 * **ACID-Compliant Cashier Checkout (`@Transactional`):** Guarantees data integrity across transactions and inventory with automatic database rollbacks if any validation fails mid-process.
