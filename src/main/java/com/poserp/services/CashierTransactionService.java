@@ -39,7 +39,7 @@ public class CashierTransactionService {
         this.userRepository = userRepository;
     }
 
-    public List<CashierTransaction> getAll() {
+    public List<CashierTransaction> findAll() {
         return transactionRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
     }
 

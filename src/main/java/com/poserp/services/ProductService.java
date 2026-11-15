@@ -29,7 +29,7 @@ public class ProductService {
         this.unitRepository = unitRepository;
     }
 
-    public List<Product> getAll() {
+    public List<Product> findAll() {
         return productRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
     }
 

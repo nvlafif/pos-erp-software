@@ -18,7 +18,7 @@ public class RoleService {
         this.roleRepository = roleRepository;
     }
 
-    public List<Role> getAll() {
+    public List<Role> findAll() {
         return roleRepository.findAll(Sort.by(Sort.Direction.ASC, ""));
     }
 

@@ -21,7 +21,7 @@ public class UserService {
         this.roleRepository = roleRepository;
     }
 
-    public List<User> getAll() {
+    public List<User> findAll() {
     return userRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
 }
 

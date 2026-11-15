@@ -18,7 +18,7 @@ public class UnitService {
         this.unitRepository = unitRepository;
     }
 
-    public List<Unit> getAll() {
+    public List<Unit> findAll() {
         return unitRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
     }
 
