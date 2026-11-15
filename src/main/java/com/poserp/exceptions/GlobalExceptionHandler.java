@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.poserp.models.dto.ErrorResponse;
 
-import org.springframework.dao.DataIntegrityViolationException;
-
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestControllerAdvice
