@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,8 +39,8 @@ public class CashierTransactionService {
         this.userRepository = userRepository;
     }
 
-    public List<CashierTransaction> findAll() {
-        return transactionRepository.findAll();
+    public List<CashierTransaction> getAll() {
+        return transactionRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
     }
 
     public CashierTransaction findById(Long id) {

@@ -2,6 +2,7 @@ package com.poserp.services;
 
 import java.util.List;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,8 +18,8 @@ public class RoleService {
         this.roleRepository = roleRepository;
     }
 
-    public List<Role> findAll() {
-        return roleRepository.findAll();
+    public List<Role> getAll() {
+        return roleRepository.findAll(Sort.by(Sort.Direction.ASC, ""));
     }
 
     public Role findById(Long id) {

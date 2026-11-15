@@ -2,6 +2,7 @@ package com.poserp.services;
 
 import java.util.List;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,8 +18,8 @@ public class UnitService {
         this.unitRepository = unitRepository;
     }
 
-    public List<Unit> findAll() {
-        return unitRepository.findAll();
+    public List<Unit> getAll() {
+        return unitRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
     }
 
     public Unit findById(Long id) {

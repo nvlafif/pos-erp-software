@@ -2,6 +2,7 @@ package com.poserp.services;
 
 import java.util.List;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.poserp.models.entities.Role;
@@ -20,9 +21,9 @@ public class UserService {
         this.roleRepository = roleRepository;
     }
 
-    public List<User> findAll() {
-        return userRepository.findAll();
-    }
+    public List<User> getAll() {
+    return userRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
+}
 
     public User findById(Long id) {
         return userRepository.findById(id)

@@ -3,6 +3,7 @@ package com.poserp.services;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.poserp.models.entities.Category;
@@ -28,8 +29,8 @@ public class ProductService {
         this.unitRepository = unitRepository;
     }
 
-    public List<Product> findAll() {
-        return productRepository.findAll();
+    public List<Product> getAll() {
+        return productRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
     }
 
     public Product findById(Long id) {
