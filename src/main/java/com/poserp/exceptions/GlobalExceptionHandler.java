@@ -1,9 +1,11 @@
 package com.poserp.exceptions;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.transaction.TransactionSystemException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -14,10 +16,10 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 1. Menangani error validasi bisnis (stok habis, uang bayar kurang, email duplikat, harga negatif)
-    @ExceptionHandler(IllegalArgumentException.class)
+    // 1. Validasi bisnis & parameter ID null (stok habis, uang kurang, ID null)
+    @ExceptionHandler({IllegalArgumentException.class, InvalidDataAccessApiUsageException.class})
     public ResponseEntity<ErrorResponse> handleBadRequest(
-            IllegalArgumentException ex,
+            RuntimeException ex,
             HttpServletRequest request) {
 
         ErrorResponse errorResponse = new ErrorResponse(
@@ -29,7 +31,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
-    // 2. Menangani kesalahan format JSON saat mengirim request di Postman
+    // 2. Kesalahan format JSON atau tipe data di body request
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleMalformedJson(
             HttpMessageNotReadableException ex,
@@ -44,7 +46,22 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
-    // 3. Menangani error data tidak ditemukan (ID produk, kategori, user, atau transaksi tidak ada)
+    // 3. Pelanggaran constraint database (duplikat data, foreign key, gagal commit transaksi)
+    @ExceptionHandler({DataIntegrityViolationException.class, TransactionSystemException.class})
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(
+            Exception ex,
+            HttpServletRequest request) {
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                "Operation failed due to duplicate data, constraint violation, or active reference in another table",
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    // 4. Data tidak ditemukan (404) & runtime error lainnya (500)
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeException(
             RuntimeException ex,
@@ -65,7 +82,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(errorResponse);
     }
 
-    // 4. Fallback untuk error tak terduga lainnya
+    // 5. Fallback error tak terduga
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneralException(
             Exception ex,
@@ -79,16 +96,4 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
-
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex,
-        HttpServletRequest request) {
-                ErrorResponse errorResponse = new ErrorResponse(
-                        HttpStatus.BAD_REQUEST.value(),
-                        HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                        "Operation failed due to duplicate data or active reference in another table",
-                        request.getRequestURI()
-                );
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
-        }
 }
