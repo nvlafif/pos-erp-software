@@ -16,6 +16,11 @@ import com.poserp.models.entities.CashierTransaction;
 import com.poserp.models.entities.CashierTransactionDetail;
 import com.poserp.services.CashierTransactionService;
 
+import java.time.LocalDate;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.RequestParam;
+import com.poserp.models.dto.SalesReportResponse;
+
 @RestController
 @RequestMapping("/api/transactions")
 public class CashierTransactionController {
@@ -45,5 +50,17 @@ public class CashierTransactionController {
     public ResponseEntity<CashierTransaction> checkout(@RequestBody TransactionRequest request) {
         CashierTransaction saved = transactionService.checkout(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+    }
+
+    @GetMapping("/report")
+    public ResponseEntity<SalesReportResponse> getSalesReport(
+            @RequestParam(required = false) String period,
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+
+        SalesReportResponse report = transactionService.getSalesReport(period, year, month, startDate, endDate);
+        return ResponseEntity.ok(report);
     }
 }
