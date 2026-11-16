@@ -3,6 +3,7 @@ package com.poserp.services;
 import java.util.List;
 
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.poserp.models.entities.Role;
@@ -15,15 +16,19 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserService(UserRepository userRepository,
+                       RoleRepository roleRepository,
+                       PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<User> findAll() {
-    return userRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
-}
+        return userRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
+    }
 
     public User findById(Long id) {
         return userRepository.findById(id)
@@ -35,6 +40,10 @@ public class UserService {
             throw new IllegalArgumentException("Email already registered : " + user.getEmail());
         }
 
+        if (user.getPassword() == null || user.getPassword().isBlank()) {
+            throw new IllegalArgumentException("Password is required");
+        }
+
         if (user.getRole() != null && user.getRole().getId() != null) {
             Role role = roleRepository.findById(user.getRole().getId())
                     .orElseThrow(() -> new RuntimeException("Role not found : " + user.getRole().getId()));
@@ -43,14 +52,15 @@ public class UserService {
             throw new IllegalArgumentException("User role is required");
         }
 
-        // TODO: Enkripsi password dengan BCryptPasswordEncoder saat menambahkan Spring Security
+        // Hash password menggunakan Argon2id sebelum disimpan ke PostgreSQL
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
     public User update(Long id, User userDetails) {
         User existingUser = findById(id);
 
-        if (!existingUser.getEmail().equals(userDetails.getEmail()) 
+        if (!existingUser.getEmail().equals(userDetails.getEmail())
                 && userRepository.existsByEmail(userDetails.getEmail())) {
             throw new IllegalArgumentException("Email already registered : " + userDetails.getEmail());
         }
@@ -59,7 +69,7 @@ public class UserService {
         existingUser.setEmail(userDetails.getEmail());
 
         if (userDetails.getPassword() != null && !userDetails.getPassword().isBlank()) {
-            existingUser.setPassword(userDetails.getPassword());
+            existingUser.setPassword(passwordEncoder.encode(userDetails.getPassword()));
         }
 
         if (userDetails.getRole() != null && userDetails.getRole().getId() != null) {
