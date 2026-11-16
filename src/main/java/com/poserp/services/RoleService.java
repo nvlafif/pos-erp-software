@@ -19,7 +19,7 @@ public class RoleService {
     }
 
     public List<Role> findAll() {
-        return roleRepository.findAll(Sort.by(Sort.Direction.ASC, ""));
+        return roleRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
     }
 
     public Role findById(Long id) {
