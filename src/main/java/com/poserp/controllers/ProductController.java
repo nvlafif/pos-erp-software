@@ -61,4 +61,10 @@ public class ProductController {
         List<Product> lowStockProducts = productService.getLowStockProducts(threshold);
         return ResponseEntity.ok(lowStockProducts);
     }
+
+    @GetMapping("/expiring")
+    public ResponseEntity<List<Product>> getExpiringProducts(
+            @RequestParam(defaultValue = "30") Integer days) {
+        return ResponseEntity.ok(productService.getExpiringProducts(days));
+    }
 }

@@ -2,6 +2,7 @@ package com.poserp.services;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.time.LocalDate;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,7 @@ public class ProductService {
 
     public Product create(Product product) {
         validateProduct(product);
+        validateAndNormalizeExpiration(product);
 
         if (product.getCategory() != null && product.getCategory().getId() != null) {
             Category category = categoryRepository.findById(product.getCategory().getId())
@@ -64,6 +66,10 @@ public class ProductService {
         existingProduct.setPrice(productDetails.getPrice());
         existingProduct.setStock(productDetails.getStock());
         existingProduct.setImage(productDetails.getImage());
+
+        existingProduct.setHasExpiration(productDetails.getHasExpiration());
+        existingProduct.setExpirationDate(productDetails.getExpirationDate());
+        validateAndNormalizeExpiration(existingProduct);
 
         if (productDetails.getCategory() != null && productDetails.getCategory().getId() != null) {
             Category category = categoryRepository.findById(productDetails.getCategory().getId())
@@ -99,5 +105,29 @@ public class ProductService {
             throw new IllegalArgumentException("Threshold stok minimum tidak boleh bernilai negatif");
         }
         return productRepository.findByStockLessThanEqualOrderByStockAsc(threshold);
+    }
+
+    private void validateAndNormalizeExpiration(Product product) {
+        boolean hasExp = Boolean.TRUE.equals(product.getHasExpiration());
+        product.setHasExpiration(hasExp);
+
+        if (hasExp) {
+            if (product.getExpirationDate() == null) {
+                throw new IllegalArgumentException(
+                        "Tanggal expired wajib diisi jika produk dikonfirmasi memiliki masa kedaluwarsa."
+                );
+            }
+        } else {
+            // Otomatis bersihkan tanggal expired menjadi null jika produk tidak memiliki expired
+            product.setExpirationDate(null);
+        }
+    }
+
+    public List<Product> getExpiringProducts(Integer days) {
+        if (days == null || days < 0) {
+            throw new IllegalArgumentException("Parameter 'days' tidak boleh bernilai negatif.");
+        }
+        LocalDate thresholdDate = LocalDate.now().plusDays(days);
+        return productRepository.findByHasExpirationTrueAndExpirationDateLessThanEqualOrderByExpirationDateAsc(thresholdDate);
     }
 }
