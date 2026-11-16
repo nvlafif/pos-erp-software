@@ -1,0 +1,14 @@
+{
+  "properties": [
+    {
+      "name": "jwt.secret",
+      "type": "java.lang.String",
+      "description": "Secret key untuk menandatangani dan memverifikasi token JWT."
+    },
+    {
+      "name": "jwt.expiration",
+      "type": "java.lang.Long",
+      "description": "Masa berlaku token JWT dalam satuan milidetik."
+    }
+  ]
+}
