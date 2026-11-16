@@ -5,17 +5,8 @@ import java.util.List;
 
 public class TransactionRequest {
 
-    private Long userId;
     private BigDecimal payment;
     private List<TransactionItemRequest> items;
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
 
     public BigDecimal getPayment() {
         return payment;
