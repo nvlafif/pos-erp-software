@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.poserp.models.entities.Product;
 import com.poserp.services.ProductService;
 
+import org.springframework.web.bind.annotation.RequestParam;
+
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
@@ -51,5 +53,12 @@ public class ProductController {
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/low-stock")
+    public ResponseEntity<List<Product>> getLowStockProducts(
+            @RequestParam(defaultValue = "10") Double threshold) {
+        List<Product> lowStockProducts = productService.getLowStockProducts(threshold);
+        return ResponseEntity.ok(lowStockProducts);
     }
 }

@@ -93,4 +93,11 @@ public class ProductService {
             throw new IllegalArgumentException("Product stock cannot be null or negative");
         }
     }
+
+    public List<Product> getLowStockProducts(Double threshold) {
+        if (threshold == null || threshold < 0) {
+            throw new IllegalArgumentException("Threshold stok minimum tidak boleh bernilai negatif");
+        }
+        return productRepository.findByStockLessThanEqualOrderByStockAsc(threshold);
+    }
 }
