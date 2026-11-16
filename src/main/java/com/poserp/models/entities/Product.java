@@ -12,6 +12,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+import java.time.LocalDate;
+
 @Entity 
 @Table(name = "products") 
 public class Product implements Serializable {
@@ -38,6 +40,12 @@ public class Product implements Serializable {
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
+
+    @Column(name = "has_expiration", nullable = false, columnDefinition = "boolean default false")
+    private Boolean hasExpiration = false;
+
+    @Column(name = "expiration_date")
+    private LocalDate expirationDate;
 
     public Product() {
     }
@@ -102,7 +110,20 @@ public class Product implements Serializable {
         this.category = category;
     }
 
-     
-    
+    public Boolean getHasExpiration() {
+        return hasExpiration;
+    }
+
+    public void setHasExpiration(Boolean hasExpiration) {
+        this.hasExpiration = hasExpiration;
+    }
+
+    public LocalDate getExpirationDate() {
+        return expirationDate;
+    }
+
+    public void setExpirationDate(LocalDate expirationDate) {
+        this.expirationDate = expirationDate;
+    }
     
 }
