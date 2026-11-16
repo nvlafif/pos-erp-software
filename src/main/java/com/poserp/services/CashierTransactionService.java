@@ -20,13 +20,15 @@ import com.poserp.repositories.CashierTransactionRepository;
 import com.poserp.repositories.ProductRepository;
 import com.poserp.repositories.UserRepository;
 
-// Tambahkan import berikut di bagian atas CashierTransactionService.java:
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.temporal.TemporalAdjusters;
 import com.poserp.models.dto.SalesReportResponse;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @Service
 public class CashierTransactionService {
@@ -67,8 +69,11 @@ public class CashierTransactionService {
             throw new IllegalArgumentException("Shopping cart cannot be empty");
         }
 
-        User cashier = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found : " + request.getUserId()));
+        
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserEmail = authentication.getName();
+        User cashier = userRepository.findByEmail(currentUserEmail)
+        .orElseThrow(() -> new RuntimeException("Akun kasir yang sedang login tidak ditemukan: " + currentUserEmail));
 
         BigDecimal totalAmount = BigDecimal.ZERO;
         List<CashierTransactionDetail> transactionDetails = new ArrayList<>();
