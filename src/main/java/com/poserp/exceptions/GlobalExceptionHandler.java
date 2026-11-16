@@ -53,12 +53,12 @@ public class GlobalExceptionHandler {
             HttpServletRequest request) {
 
         ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                "Operation failed due to duplicate data, constraint violation, or active reference in another table",
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                "Data tidak dapat dihapus atau diubah karena masih digunakan oleh data lain (relasi aktif).",
                 request.getRequestURI()
         );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
     // 4. Data tidak ditemukan (404) & runtime error lainnya (500)
