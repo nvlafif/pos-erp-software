@@ -3,6 +3,7 @@ package com.poserp.services;
 import java.math.BigDecimal;
 import java.util.List;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,9 @@ import com.poserp.models.entities.Unit;
 import com.poserp.repositories.CategoryRepository;
 import com.poserp.repositories.ProductRepository;
 import com.poserp.repositories.UnitRepository;
+
+import com.poserp.models.dto.ExpirationAlertResponse;
+import com.poserp.models.dto.ExpirationAlertResponse.ExpiringProductItem;
 
 @Service
 public class ProductService {
@@ -123,11 +127,31 @@ public class ProductService {
         }
     }
 
-    public List<Product> getExpiringProducts(Integer days) {
+    public ExpirationAlertResponse getExpiringProducts(Integer days) {
         if (days == null || days < 0) {
             throw new IllegalArgumentException("Parameter 'days' tidak boleh bernilai negatif.");
         }
-        LocalDate thresholdDate = LocalDate.now().plusDays(days);
-        return productRepository.findByHasExpirationTrueAndExpirationDateLessThanEqualOrderByExpirationDateAsc(thresholdDate);
+
+        LocalDate today = LocalDate.now();
+        LocalDate thresholdDate = today.plusDays(days);
+
+        List<Product> products = productRepository
+                .findByHasExpirationTrueAndExpirationDateLessThanEqualOrderByExpirationDateAsc(thresholdDate);
+
+        List<ExpiringProductItem> items = products.stream()
+                .map(product -> {
+                    long daysRemaining = ChronoUnit.DAYS.between(today, product.getExpirationDate());
+                    String status = daysRemaining < 0 ? "EXPIRED" : "EXPIRING_SOON";
+                    return new ExpiringProductItem(product, daysRemaining, status);
+                })
+                .toList();
+
+        boolean hasAlert = !items.isEmpty();
+        String message = hasAlert
+                ? "Peringatan: Terdapat " + items.size() + " produk yang akan kedaluwarsa dalam " + days + " hari ke depan atau sudah kedaluwarsa."
+                : "Tidak ada produk yang mendekati kedaluwarsa dalam " + days + " hari ke depan.";
+
+        return new ExpirationAlertResponse(hasAlert, days, items.size(), message, items);
     }
+
 }

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.poserp.models.dto.ExpirationAlertResponse;
 import com.poserp.models.entities.Product;
 import com.poserp.services.ProductService;
 
@@ -63,8 +64,8 @@ public class ProductController {
     }
 
     @GetMapping("/expiring")
-    public ResponseEntity<List<Product>> getExpiringProducts(
-            @RequestParam(defaultValue = "30") Integer days) {
+    public ResponseEntity<ExpirationAlertResponse> getExpiringProducts(
+            @RequestParam(defaultValue = "7") Integer days) {
         return ResponseEntity.ok(productService.getExpiringProducts(days));
     }
 }
