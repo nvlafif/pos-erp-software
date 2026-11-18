@@ -64,7 +64,12 @@ public class SecurityConfig {
             // 4. Aturan Otorisasi RBAC (Owner, Gudang, Kasir)
             .authorizeHttpRequests(auth -> auth
                 // Endpoint Publik (Login)
-                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers(
+                    "/api/auth/**",
+                    "/v3/api-docs/**",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html"
+                ).permitAll()
 
                 // Laporan Penjualan -> Khusus Owner
                 .requestMatchers(HttpMethod.GET, "/api/transactions/report/**").hasRole("OWNER")
@@ -123,5 +128,8 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+
+        
     }
+
 }
