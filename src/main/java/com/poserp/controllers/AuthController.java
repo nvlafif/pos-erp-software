@@ -22,11 +22,17 @@ import com.poserp.models.entities.User;
 import com.poserp.repositories.UserRepository;
 import com.poserp.security.JwtUtil;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth")
+@Tag(name = "1. Authentication", description = "Endpoint publik untuk autentikasi pengguna dan penerbitan token JWT")
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
@@ -43,6 +49,16 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @SecurityRequirements // Menandai endpoint publik ini tidak memerlukan Bearer Token di Swagger UI
+    @Operation(
+        summary = "Login pengguna & dapatkan JWT",
+        description = "Memvalidasi email dan password (Argon2id), lalu mengembalikan token JWT beserta profil dan role pengguna."
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Login berhasil, token JWT diterbitkan"),
+        @ApiResponse(responseCode = "400", description = "Format input email/password tidak valid"),
+        @ApiResponse(responseCode = "401", description = "Email atau password salah")
+    })
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletRequest request) {
         try {
             Authentication authentication = authenticationManager.authenticate(
