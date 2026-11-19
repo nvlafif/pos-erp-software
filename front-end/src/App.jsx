@@ -1,56 +1,27 @@
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { LogOut, ShieldCheck } from 'lucide-react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
+import MainLayout from './components/MainLayout';
+import RoleRoute, { getDefaultRouteByRole, getNormalizedRole } from './components/RoleRoute';
 
-function ProtectedRoute({ children }) {
-  const token = localStorage.getItem('token');
-  return token ? children : <Navigate to="/login" replace />;
+function ModuleStub({ title, description }) {
+  return (
+    <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+      <h2 className="text-xl font-bold text-slate-900">{title}</h2>
+      <p className="text-sm text-slate-500 mt-1">{description}</p>
+    </div>
+  );
 }
 
-function DashboardPlaceholder() {
-  const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  const token = localStorage.getItem('token') || '';
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    navigate('/login');
-  };
-
+function DashboardRouter() {
+  const role = getNormalizedRole();
+  if (role !== 'OWNER') {
+    return <Navigate to={getDefaultRouteByRole(role)} replace />;
+  }
   return (
-    <div className="min-h-screen bg-slate-50 p-8">
-      <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
-          <div className="flex items-center gap-2.5">
-            <ShieldCheck className="w-6 h-6 text-emerald-600" />
-            <h2 className="text-lg font-bold text-slate-900">Autentikasi JWT Berhasil</h2>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-1.5 text-sm text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg transition cursor-pointer"
-          >
-            <LogOut className="w-4 h-4" />
-            Logout
-          </button>
-        </div>
-
-        <div className="space-y-2 text-sm text-slate-700">
-          <p><span className="font-semibold">Nama:</span> {user.name}</p>
-          <p><span className="font-semibold">Email:</span> {user.email}</p>
-          <p>
-            <span className="font-semibold">Role Aktif:</span>{' '}
-            <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
-              {user.role}
-            </span>
-          </p>
-          <p className="pt-2 text-xs text-slate-400 break-all">
-            <span className="font-semibold text-slate-500">Token Tersimpan:</span>{' '}
-            {token.substring(0, 45)}...
-          </p>
-        </div>
-      </div>
-    </div>
+    <ModuleStub
+      title="Dashboard Ringkasan Bisnis (Owner)"
+      description="Area metrik omzet harian, performa transaksi, dan peringatan stok kritis."
+    />
   );
 }
 
@@ -59,14 +30,47 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <DashboardPlaceholder />
-            </ProtectedRoute>
-          }
-        />
+
+        {/* Rute Terproteksi di dalam MainLayout */}
+        <Route element={<RoleRoute allowedRoles={['OWNER', 'GUDANG', 'KASIR']} />}>
+          <Route element={<MainLayout />}>
+            <Route path="/dashboard" element={<DashboardRouter />} />
+
+            <Route element={<RoleRoute allowedRoles={['OWNER', 'KASIR']} />}>
+              <Route
+                path="/pos"
+                element={
+                  <ModuleStub
+                    title="Terminal Kasir (Point of Sale)"
+                    description="Katalog produk siap jual, keranjang transaksi, dan perhitungan pembayaran."
+                  />
+                }
+              />
+              <Route
+                path="/transactions"
+                element={
+                  <ModuleStub
+                    title="Riwayat Transaksi"
+                    description="Daftar struk penjualan dan detail item per transaksi."
+                  />
+                }
+              />
+            </Route>
+
+            <Route element={<RoleRoute allowedRoles={['OWNER', 'GUDANG']} />}>
+              <Route
+                path="/inventory"
+                element={
+                  <ModuleStub
+                    title="Manajemen Inventaris & Produk"
+                    description="Pengelolaan master produk, kategori, harga modal/jual, dan pembaruan stok."
+                  />
+                }
+              />
+            </Route>
+          </Route>
+        </Route>
+
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
