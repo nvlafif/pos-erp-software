@@ -13,6 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 import java.time.LocalDate;
+import java.util.Locale.Category;
 
 @Entity 
 @Table(name = "products") 
@@ -25,6 +26,12 @@ public class Product implements Serializable {
     private Long id;
 
     private String name;
+
+    @Column(unique = true, length = 50)
+    private String sku;
+
+    @Column(name = "cost_price", precision = 10, scale = 2)
+    private BigDecimal costPrice;
 
     @Column(precision = 10, scale = 2)
     private BigDecimal price;
@@ -125,5 +132,23 @@ public class Product implements Serializable {
     public void setExpirationDate(LocalDate expirationDate) {
         this.expirationDate = expirationDate;
     }
+
+    public String getSku() {
+        return sku;
+    }
+
+    public void setSku(String sku) {
+        this.sku = sku;
+    }
+
+    public BigDecimal getCostPrice() {
+        return costPrice;
+    }
+
+    public void setCostPrice(BigDecimal costPrice) {
+        this.costPrice = costPrice;
+    }
+
+    
     
 }
