@@ -2,6 +2,9 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import MainLayout from './components/MainLayout';
 import RoleRoute, { getDefaultRouteByRole, getNormalizedRole } from './components/RoleRoute';
+import Inventory from './pages/Inventory';
+
+
 
 function ModuleStub({ title, description }) {
   return (
@@ -58,15 +61,7 @@ export default function App() {
             </Route>
 
             <Route element={<RoleRoute allowedRoles={['OWNER', 'GUDANG']} />}>
-              <Route
-                path="/inventory"
-                element={
-                  <ModuleStub
-                    title="Manajemen Inventaris & Produk"
-                    description="Pengelolaan master produk, kategori, harga modal/jual, dan pembaruan stok."
-                  />
-                }
-              />
+              <Route path="/inventory" element={<Inventory />} />
             </Route>
           </Route>
         </Route>
