@@ -67,6 +67,8 @@ public class ProductService {
         Product existingProduct = findById(id);
 
         existingProduct.setName(productDetails.getName());
+        existingProduct.setSku(productDetails.getSku());
+        existingProduct.setCostPrice(productDetails.getCostPrice());
         existingProduct.setPrice(productDetails.getPrice());
         existingProduct.setStock(productDetails.getStock());
         existingProduct.setImage(productDetails.getImage());
