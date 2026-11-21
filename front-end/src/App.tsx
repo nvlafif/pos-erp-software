@@ -1,14 +1,21 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
-import MainLayout from './components/MainLayout';
-import RoleRoute, { getDefaultRouteByRole, getNormalizedRole } from './components/RoleRoute';
+import MainLayout from './components/layout/MainLayout';
+import RoleRoute from './features/auth/components/RoleRoute';
 import Inventory from './pages/Inventory';
+import {
+  getDefaultRouteByRole,
+  getNormalizedRole,
+} from './features/auth/utils/authStorage';
 
+interface ModuleStubProps {
+  title: string;
+  description: string;
+}
 
-
-function ModuleStub({ title, description }) {
+function ModuleStub({ title, description }: ModuleStubProps) {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+    <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs">
       <h2 className="text-xl font-bold text-slate-900">{title}</h2>
       <p className="text-sm text-slate-500 mt-1">{description}</p>
     </div>

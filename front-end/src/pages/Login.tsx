@@ -1,40 +1,45 @@
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock, Mail, Store, AlertCircle, Loader2 } from 'lucide-react';
-import api from '../api/axios';
+import { AxiosError } from 'axios';
+import { Lock, Mail, Store, Loader2 } from 'lucide-react';
+import AlertBanner from '../components/ui/AlertBanner';
+import { authService } from '../features/auth/api/authService';
+import {
+  getDefaultRouteByRole,
+  getNormalizedRole,
+  setAuthSession,
+} from '../features/auth/utils/authStorage';
 
 export default function Login() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [errorMsg, setErrorMsg] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrorMsg('');
     setLoading(true);
 
     try {
-      const response = await api.post('/auth/login', { email, password });
-      const payload = response.data?.data || response.data;
-      const { token, ...userData } = payload;
+      const { token, ...userData } = await authService.login({ email, password });
+      setAuthSession(token, userData);
 
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(userData));
-
-      navigate('/dashboard');
+      const role = getNormalizedRole();
+      navigate(getDefaultRouteByRole(role), { replace: true });
     } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        'Gagal terhubung ke server. Pastikan backend Spring Boot berjalan di port 8080.';
-      setErrorMsg(message);
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setErrorMsg(
+        axiosErr.response?.data?.message ||
+          'Gagal terhubung ke server. Pastikan backend Spring Boot berjalan di port 8080.'
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const fillDemoAccount = (demoEmail, demoPassword) => {
+  const fillDemoAccount = (demoEmail: string, demoPassword: string) => {
     setEmail(demoEmail);
     setPassword(demoPassword);
     setErrorMsg('');
@@ -53,12 +58,7 @@ export default function Login() {
           </p>
         </div>
 
-        {errorMsg && (
-          <div className="mb-5 p-3.5 rounded-lg bg-red-50 border border-red-200 flex items-start gap-2.5 text-red-700 text-sm">
-            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-            <span>{errorMsg}</span>
-          </div>
-        )}
+        <AlertBanner variant="error" message={errorMsg} className="mb-5" />
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
