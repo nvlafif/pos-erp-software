@@ -3,10 +3,8 @@ import Login from './pages/Login';
 import MainLayout from './components/layout/MainLayout';
 import RoleRoute from './features/auth/components/RoleRoute';
 import Inventory from './pages/Inventory';
-import {
-  getDefaultRouteByRole,
-  getNormalizedRole,
-} from './features/auth/utils/authStorage';
+import Dashboard from './pages/Dashboard';
+import MasterData from './pages/MasterData';
 
 interface ModuleStubProps {
   title: string;
@@ -22,19 +20,6 @@ function ModuleStub({ title, description }: ModuleStubProps) {
   );
 }
 
-function DashboardRouter() {
-  const role = getNormalizedRole();
-  if (role !== 'OWNER') {
-    return <Navigate to={getDefaultRouteByRole(role)} replace />;
-  }
-  return (
-    <ModuleStub
-      title="Dashboard Ringkasan Bisnis (Owner)"
-      description="Area metrik omzet harian, performa transaksi, dan peringatan stok kritis."
-    />
-  );
-}
-
 export default function App() {
   return (
     <BrowserRouter>
@@ -44,7 +29,10 @@ export default function App() {
         {/* Rute Terproteksi di dalam MainLayout */}
         <Route element={<RoleRoute allowedRoles={['OWNER', 'GUDANG', 'KASIR']} />}>
           <Route element={<MainLayout />}>
-            <Route path="/dashboard" element={<DashboardRouter />} />
+            <Route element={<RoleRoute allowedRoles={['OWNER']} />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/master-data" element={<MasterData />} />
+            </Route>
 
             <Route element={<RoleRoute allowedRoles={['OWNER', 'KASIR']} />}>
               <Route

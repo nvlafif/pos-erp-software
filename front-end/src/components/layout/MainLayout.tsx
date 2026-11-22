@@ -4,6 +4,7 @@ import {
   ShoppingCart,
   ReceiptText,
   Package,
+  Tags,
   Store,
   LogOut,
   type LucideIcon,
@@ -27,6 +28,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: '/pos', label: 'Kasir POS', icon: ShoppingCart, roles: ['OWNER', 'KASIR'] },
   { to: '/transactions', label: 'Transaksi', icon: ReceiptText, roles: ['OWNER', 'KASIR'] },
   { to: '/inventory', label: 'Inventaris Gudang', icon: Package, roles: ['OWNER', 'GUDANG'] },
+  { to: '/master-data', label: 'Master Data', icon: Tags, roles: ['OWNER'] },
 ];
 
 export default function MainLayout() {
