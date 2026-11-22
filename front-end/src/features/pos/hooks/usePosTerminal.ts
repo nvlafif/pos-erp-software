@@ -23,7 +23,6 @@ export function usePosTerminal() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
 
-  const [customerName, setCustomerName] = useState<string>('');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('CASH');
   const [amountPaidInput, setAmountPaidInput] = useState<string>('');
 
@@ -155,7 +154,6 @@ export function usePosTerminal() {
 
   const clearCart = useCallback(() => {
     setCart([]);
-    setCustomerName('');
     setAmountPaidInput('');
     setPaymentMethod('CASH');
     setError('');
@@ -221,7 +219,7 @@ export function usePosTerminal() {
         },
         {
           cashierName: currentUser?.name || currentUser?.email || 'Kasir',
-          customerName: customerName.trim() || 'Pelanggan Umum',
+          customerName: 'Pelanggan Umum',
           paymentMethod,
           totalAmount,
           itemMetaMap,
@@ -251,8 +249,6 @@ export function usePosTerminal() {
     setSearchQuery,
     selectedCategory,
     setSelectedCategory,
-    customerName,
-    setCustomerName,
     paymentMethod,
     setPaymentMethod,
     amountPaidInput,

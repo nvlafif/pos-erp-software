@@ -61,8 +61,6 @@ export default function Pos() {
             cart={pos.cart}
             totalItems={pos.totalItems}
             totalAmount={pos.totalAmount}
-            customerName={pos.customerName}
-            onCustomerNameChange={pos.setCustomerName}
             paymentMethod={pos.paymentMethod}
             onPaymentMethodChange={pos.setPaymentMethod}
             amountPaidInput={pos.amountPaidInput}

@@ -46,7 +46,7 @@ export default function TransactionTable({
                 <th className="py-3.5 px-4 w-14">No.</th>
                 <th className="py-3.5 px-4">No. Struk</th>
                 <th className="py-3.5 px-4">Waktu Transaksi</th>
-                <th className="py-3.5 px-4">Kasir &amp; Pelanggan</th>
+                <th className="py-3.5 px-4">Kasir</th>
                 <th className="py-3.5 px-4 text-center">Item</th>
                 <th className="py-3.5 px-4 text-center">Metode</th>
                 <th className="py-3.5 px-4 text-right">Total Bayar</th>
@@ -83,12 +83,9 @@ export default function TransactionTable({
                       })}
                     </td>
                     <td className="py-3.5 px-4">
-                      <p className="font-semibold text-slate-900 text-xs">
-                        {trx.customerName}
-                      </p>
-                      <p className="text-[11px] text-slate-500">
-                        Kasir: {trx.cashierName}
-                      </p>
+                      <span className="font-semibold text-slate-900 text-xs">
+                        {trx.cashierName}
+                      </span>
                     </td>
                     <td className="py-3.5 px-4 text-center text-xs font-semibold text-slate-700">
                       {totalQty > 0 ? `${totalQty} item` : '-'}

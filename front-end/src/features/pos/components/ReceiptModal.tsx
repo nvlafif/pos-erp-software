@@ -108,11 +108,6 @@ export default function ReceiptModal({
               {transaction.cashierName}
             </span>
 
-            <span className="text-slate-500">Pelanggan</span>
-            <span className="text-right font-medium text-slate-800">
-              {transaction.customerName}
-            </span>
-
             <span className="text-slate-500">Metode Bayar</span>
             <span className="text-right">
               <Badge variant="info">{transaction.paymentMethod}</Badge>

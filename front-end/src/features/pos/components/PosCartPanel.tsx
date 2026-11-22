@@ -7,7 +7,6 @@ import {
   QrCode,
   Building2,
   CheckCircle2,
-  User,
 } from 'lucide-react';
 import Card from '../../../components/ui/Card';
 import Button from '../../../components/ui/Button';
@@ -18,8 +17,6 @@ interface PosCartPanelProps {
   cart: CartItem[];
   totalItems: number;
   totalAmount: number;
-  customerName: string;
-  onCustomerNameChange: (name: string) => void;
   paymentMethod: PaymentMethod;
   onPaymentMethodChange: (method: PaymentMethod) => void;
   amountPaidInput: string;
@@ -50,8 +47,6 @@ export default function PosCartPanel({
   cart,
   totalItems,
   totalAmount,
-  customerName,
-  onCustomerNameChange,
   paymentMethod,
   onPaymentMethodChange,
   amountPaidInput,
@@ -156,25 +151,8 @@ export default function PosCartPanel({
         )}
       </div>
 
-      {/* Form Pelanggan, Metode Pembayaran & Total */}
+      {/* Form Metode Pembayaran & Total */}
       <div className="p-4 bg-slate-50 border-t border-slate-300 space-y-4">
-        {/* Nama Pelanggan Opsional */}
-        <div>
-          <label className="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
-            Nama Pelanggan (Opsional)
-          </label>
-          <div className="relative">
-            <User className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={customerName}
-              onChange={(e) => onCustomerNameChange(e.target.value)}
-              placeholder="Pelanggan Umum"
-              className="w-full pl-8 pr-3 py-1.5 border border-slate-300 rounded-lg text-xs bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        </div>
-
         {/* Pilihan Metode Pembayaran */}
         <div>
           <label className="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1.5">
