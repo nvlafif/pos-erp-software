@@ -7,6 +7,7 @@ public class TransactionRequest {
 
     private BigDecimal payment;
     private List<TransactionItemRequest> items;
+    private String paymentMethod;
 
     public BigDecimal getPayment() {
         return payment;
@@ -22,5 +23,13 @@ public class TransactionRequest {
 
     public void setItems(List<TransactionItemRequest> items) {
         this.items = items;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
     }
 }

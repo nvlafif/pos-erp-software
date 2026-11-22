@@ -2,13 +2,21 @@ package com.poserp.services;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.poserp.models.dto.SalesReportResponse;
 import com.poserp.models.dto.TransactionItemRequest;
 import com.poserp.models.dto.TransactionRequest;
 import com.poserp.models.entities.CashierTransaction;
@@ -19,16 +27,6 @@ import com.poserp.repositories.CashierTransactionDetailRepository;
 import com.poserp.repositories.CashierTransactionRepository;
 import com.poserp.repositories.ProductRepository;
 import com.poserp.repositories.UserRepository;
-
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.YearMonth;
-import java.time.temporal.TemporalAdjusters;
-import com.poserp.models.dto.SalesReportResponse;
-
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 @Service
 public class CashierTransactionService {
@@ -59,7 +57,7 @@ public class CashierTransactionService {
     }
 
     public List<CashierTransactionDetail> findDetailsByTransactionId(Long transactionId) {
-        findById(transactionId); // Validasi bahwa ID transaksi benar-benar ada
+        findById(transactionId);
         return detailRepository.findByCashierTransactionId(transactionId);
     }
 
@@ -69,11 +67,10 @@ public class CashierTransactionService {
             throw new IllegalArgumentException("Shopping cart cannot be empty");
         }
 
-        
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUserEmail = authentication.getName();
         User cashier = userRepository.findByEmail(currentUserEmail)
-        .orElseThrow(() -> new RuntimeException("Akun kasir yang sedang login tidak ditemukan: " + currentUserEmail));
+                .orElseThrow(() -> new RuntimeException("Akun kasir yang sedang login tidak ditemukan: " + currentUserEmail));
 
         BigDecimal totalAmount = BigDecimal.ZERO;
         List<CashierTransactionDetail> transactionDetails = new ArrayList<>();
@@ -91,11 +88,9 @@ public class CashierTransactionService {
                 throw new IllegalArgumentException("Insufficient stock for product : " + product.getName());
             }
 
-            // Pemotongan stok otomatis
             product.setStock(product.getStock() - item.getQuantity());
             productRepository.save(product);
 
-            // Snapshot harga produk saat ini & hitung subtotal
             BigDecimal unitPrice = product.getPrice();
             BigDecimal quantityBd = BigDecimal.valueOf(item.getQuantity());
             BigDecimal subTotal = unitPrice.multiply(quantityBd).setScale(2, RoundingMode.HALF_UP);
@@ -118,12 +113,13 @@ public class CashierTransactionService {
 
         BigDecimal change = request.getPayment().subtract(totalAmount);
 
-        // 3. Simpan Header Transaksi (Struk)
+        // 3. Simpan Header Transaksi (Struk) beserta metode pembayarannya
         CashierTransaction transaction = new CashierTransaction();
         transaction.setUser(cashier);
         transaction.setTotalAmount(totalAmount);
         transaction.setPayment(request.getPayment());
         transaction.setChange(change);
+        transaction.setPaymentMethod(request.getPaymentMethod());
 
         CashierTransaction savedTransaction = transactionRepository.save(transaction);
 
@@ -136,13 +132,17 @@ public class CashierTransactionService {
         return savedTransaction;
     }
 
-    public SalesReportResponse getSalesReport(String period,Integer year,Integer month,LocalDate startDate,LocalDate endDate) {
+    public SalesReportResponse getSalesReport(
+            String period,
+            Integer year,
+            Integer month,
+            LocalDate startDate,
+            LocalDate endDate) {
         LocalDate today = LocalDate.now();
         LocalDate resolvedStart;
         LocalDate resolvedEnd;
         String normalizedPeriod;
 
-        // Jika period tidak diisi tetapi startDate & endDate dikirim, otomatis anggap CUSTOM
         if (period == null || period.isBlank()) {
             normalizedPeriod = (startDate != null && endDate != null) ? "CUSTOM" : "TODAY";
         } else {
@@ -156,7 +156,6 @@ public class CashierTransactionService {
                 break;
 
             case "THIS_WEEK":
-                // Senin minggu ini sampai Minggu minggu ini
                 resolvedStart = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
                 resolvedEnd = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
                 break;
@@ -211,8 +210,6 @@ public class CashierTransactionService {
                 resolvedStart,
                 resolvedEnd,
                 totalTransactions,
-                totalRevenue
-        );
-            
+                totalRevenue);
     }
 }

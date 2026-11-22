@@ -12,6 +12,7 @@ import PageHeader from '../components/ui/PageHeader';
 import AlertBanner from '../components/ui/AlertBanner';
 import StatCard from '../components/ui/StatCard';
 import Button from '../components/ui/Button';
+import Card from '../components/ui/Card';
 import { formatRupiah } from '../utils/formatters';
 import { useOwnerDashboard } from '../features/dashboard/hooks/useOwnerDashboard';
 import type { DashboardPeriod } from '../features/dashboard/types/dashboard.types';
@@ -23,14 +24,32 @@ import InventoryRiskPanel from '../features/dashboard/components/InventoryRiskPa
 
 const PERIOD_OPTIONS: { id: DashboardPeriod; label: string }[] = [
   { id: 'TODAY', label: 'Hari Ini' },
-  { id: '7D', label: '7 Hari' },
-  { id: '30D', label: '30 Hari' },
-  { id: 'ALL', label: 'Semua' },
+  { id: 'THIS_WEEK', label: 'Minggu Ini' },
+  { id: 'THIS_MONTH', label: 'Bulan Ini' },
+  { id: 'THIS_YEAR', label: 'Tahun Ini' },
+  { id: 'MONTH', label: 'Pilih Bulan' },
+  { id: 'CUSTOM', label: 'Rentang Tanggal' },
+];
+
+const MONTH_NAMES = [
+  'Januari',
+  'Februari',
+  'Maret',
+  'April',
+  'Mei',
+  'Juni',
+  'Juli',
+  'Agustus',
+  'September',
+  'Oktober',
+  'November',
+  'Desember',
 ];
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const dash = useOwnerDashboard();
+  const currentYear = new Date().getFullYear();
 
   return (
     <div className="space-y-6">
@@ -38,24 +57,7 @@ export default function Dashboard() {
         title="Dashboard Eksekutif Owner"
         subtitle="Ringkasan performa penjualan, estimasi laba kotor, dan kesehatan stok gudang"
         actions={
-          <div className="flex flex-wrap items-center gap-2.5">
-            <div className="inline-flex rounded-lg border border-slate-300 p-1 bg-white">
-              {PERIOD_OPTIONS.map((opt) => (
-                <button
-                  key={opt.id}
-                  type="button"
-                  onClick={() => dash.setPeriod(opt.id)}
-                  className={`px-3 py-1 rounded-md text-xs font-semibold transition cursor-pointer ${
-                    dash.period === opt.id
-                      ? 'bg-blue-600 text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-
+          <>
             <Button
               variant="secondary"
               icon={RefreshCw}
@@ -72,9 +74,73 @@ export default function Dashboard() {
             >
               Buka Kasir
             </Button>
-          </div>
+          </>
         }
       />
+
+      {/* Bar Filter Laporan Periode (/api/transactions/report) */}
+      <Card className="p-3.5 border-slate-300 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-1.5">
+          {PERIOD_OPTIONS.map((opt) => (
+            <button
+              key={opt.id}
+              type="button"
+              onClick={() => dash.setPeriod(opt.id)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                dash.period === opt.id
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+
+        {dash.period === 'MONTH' && (
+          <div className="flex items-center gap-2">
+            <select
+              value={dash.selectedMonth}
+              onChange={(e) => dash.setSelectedMonth(Number(e.target.value))}
+              className="px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-medium bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {MONTH_NAMES.map((name, idx) => (
+                <option key={name} value={idx + 1}>
+                  {name}
+                </option>
+              ))}
+            </select>
+            <input
+              type="number"
+              min="2020"
+              max="2100"
+              value={dash.selectedYear}
+              onChange={(e) =>
+                dash.setSelectedYear(Number(e.target.value) || currentYear)
+              }
+              className="w-24 px-3 py-1.5 border border-slate-300 rounded-lg text-xs font-medium bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        )}
+
+        {dash.period === 'CUSTOM' && (
+          <div className="flex items-center gap-2 text-xs">
+            <input
+              type="date"
+              value={dash.startDate}
+              onChange={(e) => dash.setStartDate(e.target.value)}
+              className="px-3 py-1.5 border border-slate-300 rounded-lg font-medium bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <span className="text-slate-400 font-medium">s/d</span>
+            <input
+              type="date"
+              value={dash.endDate}
+              onChange={(e) => dash.setEndDate(e.target.value)}
+              className="px-3 py-1.5 border border-slate-300 rounded-lg font-medium bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        )}
+      </Card>
 
       {(dash.error || dash.transactionNotice) && (
         <div className="space-y-2.5">

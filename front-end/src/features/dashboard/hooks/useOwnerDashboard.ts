@@ -15,6 +15,7 @@ import type {
   PaymentBreakdownItem,
   TopProductItem,
   TransactionRecord,
+  TransactionReportSummary,
 } from '../types/dashboard.types';
 
 function toLocalDateKey(dateInput: string | Date): string {
@@ -27,9 +28,19 @@ function toLocalDateKey(dateInput: string | Date): string {
 }
 
 export function useOwnerDashboard() {
+  const now = new Date();
+  const defaultDateStr = toLocalDateKey(now);
+
   const [products, setProducts] = useState<Product[]>([]);
   const [transactions, setTransactions] = useState<TransactionRecord[]>([]);
-  const [period, setPeriod] = useState<DashboardPeriod>('7D');
+  const [reportSummary, setReportSummary] =
+    useState<TransactionReportSummary | null>(null);
+
+  const [period, setPeriod] = useState<DashboardPeriod>('THIS_MONTH');
+  const [selectedYear, setSelectedYear] = useState<number>(now.getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState<number>(now.getMonth() + 1);
+  const [startDate, setStartDate] = useState<string>(defaultDateStr);
+  const [endDate, setEndDate] = useState<string>(defaultDateStr);
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
@@ -41,9 +52,16 @@ export function useOwnerDashboard() {
     setTransactionNotice('');
 
     try {
-      const [productResult, trxResult] = await Promise.allSettled([
+      const [productResult, trxResult, reportResult] = await Promise.allSettled([
         productService.getAll(),
         dashboardService.getTransactions(),
+        dashboardService.getTransactionReport({
+          period,
+          year: selectedYear,
+          month: selectedMonth,
+          startDate,
+          endDate,
+        }),
       ]);
 
       if (productResult.status === 'fulfilled') {
@@ -53,12 +71,30 @@ export function useOwnerDashboard() {
       }
 
       if (trxResult.status === 'fulfilled') {
-        setTransactions(trxResult.value);
+        const headers = trxResult.value;
+        const hydrated = await Promise.all(
+          headers.map(async (trx) => {
+            if (trx.items.length > 0) return trx;
+            try {
+              const details = await dashboardService.getTransactionDetails(trx.id);
+              return { ...trx, items: details };
+            } catch {
+              return trx;
+            }
+          })
+        );
+        setTransactions(hydrated);
       } else {
         setTransactions([]);
         setTransactionNotice(
-          'Data riwayat transaksi belum tersedia dari endpoint /api/transactions. Menampilkan ringkasan aset & inventaris.'
+          'Data riwayat transaksi belum tersedia dari endpoint /api/transactions.'
         );
+      }
+
+      if (reportResult.status === 'fulfilled') {
+        setReportSummary(reportResult.value);
+      } else {
+        setReportSummary(null);
       }
     } catch (err) {
       const axiosErr = err as AxiosError<{ message?: string }>;
@@ -69,7 +105,7 @@ export function useOwnerDashboard() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [period, selectedYear, selectedMonth, startDate, endDate]);
 
   useEffect(() => {
     void fetchDashboardData();
@@ -82,30 +118,63 @@ export function useOwnerDashboard() {
   }, [products]);
 
   const filteredTransactions = useMemo(() => {
-    if (period === 'ALL') return transactions;
-
-    const now = new Date();
-    now.setHours(0, 0, 0, 0);
-
-    const daysBack = period === 'TODAY' ? 0 : period === '7D' ? 6 : 29;
-    const startThreshold = new Date(now);
-    startThreshold.setDate(now.getDate() - daysBack);
+    const current = new Date();
+    current.setHours(0, 0, 0, 0);
 
     return transactions.filter((trx) => {
       const trxDate = new Date(trx.transactionDate);
       if (Number.isNaN(trxDate.getTime())) return true;
-      trxDate.setHours(0, 0, 0, 0);
-      return trxDate.getTime() >= startThreshold.getTime();
+      const trxDay = new Date(trxDate);
+      trxDay.setHours(0, 0, 0, 0);
+
+      if (period === 'TODAY') {
+        return trxDay.getTime() === current.getTime();
+      }
+
+      if (period === 'THIS_WEEK') {
+        const dayOfWeek = current.getDay();
+        const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+        const monday = new Date(current);
+        monday.setDate(current.getDate() - diffToMonday);
+        return trxDay.getTime() >= monday.getTime();
+      }
+
+      if (period === 'THIS_MONTH') {
+        return (
+          trxDate.getFullYear() === current.getFullYear() &&
+          trxDate.getMonth() === current.getMonth()
+        );
+      }
+
+      if (period === 'THIS_YEAR') {
+        return trxDate.getFullYear() === current.getFullYear();
+      }
+
+      if (period === 'MONTH') {
+        return (
+          trxDate.getFullYear() === selectedYear &&
+          trxDate.getMonth() + 1 === selectedMonth
+        );
+      }
+
+      if (period === 'CUSTOM') {
+        const key = toLocalDateKey(trxDate);
+        if (startDate && key < startDate) return false;
+        if (endDate && key > endDate) return false;
+        return true;
+      }
+
+      return true;
     });
-  }, [transactions, period]);
+  }, [transactions, period, selectedYear, selectedMonth, startDate, endDate]);
 
   const kpiSummary = useMemo(() => {
-    let totalRevenue = 0;
+    let computedRevenue = 0;
     let totalCost = 0;
     let totalItemsSold = 0;
 
     filteredTransactions.forEach((trx) => {
-      totalRevenue += trx.totalAmount;
+      computedRevenue += trx.totalAmount;
 
       trx.items.forEach((item) => {
         totalItemsSold += item.quantity;
@@ -115,19 +184,25 @@ export function useOwnerDashboard() {
       });
     });
 
+    const totalRevenue =
+      reportSummary && reportSummary.totalRevenue > 0
+        ? reportSummary.totalRevenue
+        : computedRevenue;
+
+    const transactionCount =
+      reportSummary && reportSummary.transactionCount > 0
+        ? reportSummary.transactionCount
+        : filteredTransactions.length;
+
     const grossProfit = totalRevenue - totalCost;
-    const transactionCount = filteredTransactions.length;
-    const averageBasket =
-      transactionCount > 0 ? Math.round(totalRevenue / transactionCount) : 0;
 
     return {
       totalRevenue,
       grossProfit,
       transactionCount,
       totalItemsSold,
-      averageBasket,
     };
-  }, [filteredTransactions, productMap]);
+  }, [filteredTransactions, productMap, reportSummary]);
 
   const dailyTrend = useMemo<DailyRevenuePoint[]>(() => {
     const today = new Date();
@@ -265,6 +340,14 @@ export function useOwnerDashboard() {
   return {
     period,
     setPeriod,
+    selectedYear,
+    setSelectedYear,
+    selectedMonth,
+    setSelectedMonth,
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
     loading,
     error,
     transactionNotice,

@@ -1,4 +1,23 @@
-export type DashboardPeriod = 'TODAY' | '7D' | '30D' | 'ALL';
+export type DashboardPeriod =
+  | 'TODAY'
+  | 'THIS_WEEK'
+  | 'THIS_MONTH'
+  | 'THIS_YEAR'
+  | 'MONTH'
+  | 'CUSTOM';
+
+export interface ReportFilterParams {
+  period: DashboardPeriod;
+  year?: number;
+  month?: number;
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface TransactionReportSummary {
+  transactionCount: number;
+  totalRevenue: number;
+}
 
 export interface TransactionItemRecord {
   productId: number;

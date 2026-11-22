@@ -43,6 +43,9 @@ public class CashierTransaction implements Serializable {
     @Column(name = "change", nullable = false, precision = 10, scale = 2)
     private BigDecimal change;
 
+    @Column(name = "payment_method")
+    private String paymentMethod = "CASH";
+
     public CashierTransaction() {
     }
 
@@ -97,5 +100,14 @@ public class CashierTransaction implements Serializable {
     public void setChange(BigDecimal change) {
         this.change = change;
     }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+    
     
 }
