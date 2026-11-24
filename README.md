@@ -28,6 +28,10 @@ An integrated **Point-of-Sale (POS)** and **Enterprise Resource Planning (ERP)**
 <img width="1474" height="718" alt="Screenshot_24-11-2026_14156_localhost" src="https://github.com/user-attachments/assets/ae342b12-e556-411f-81d6-3bb808accab0" />
 
 
+* ### Transaction Receipt
+<img width="1474" height="772" alt="Screenshot_24-11-2026_1432_localhost" src="https://github.com/user-attachments/assets/b7c136df-57b9-4c3f-8285-945c94f5d595" />
+
+
 * ### Transactions History
 <img width="1474" height="749" alt="Screenshot_24-11-2026_1429_localhost" src="https://github.com/user-attachments/assets/00849f7c-f5bf-4159-9097-818dbf431fca" />
 
@@ -36,16 +40,12 @@ An integrated **Point-of-Sale (POS)** and **Enterprise Resource Planning (ERP)**
 <img width="1474" height="973" alt="Screenshot_24-11-2026_14226_localhost" src="https://github.com/user-attachments/assets/a3fab0a6-16e8-455d-82e9-91ba0c60ca28" />
 
 
-* ### Master Data
-<img width="1474" height="718" alt="Screenshot_24-11-2026_14236_localhost" src="https://github.com/user-attachments/assets/f072241c-2b8b-402c-a370-49b43e48dc2a" />
-
-
 * ### Product Catalog
 <img width="1576" height="776" alt="screenshot-1795517183755" src="https://github.com/user-attachments/assets/34e16a77-dd14-401f-ad3e-ce5b1ea707f3" />
 
 
-* ### Transaction Receipt
-<img width="1474" height="772" alt="Screenshot_24-11-2026_1432_localhost" src="https://github.com/user-attachments/assets/b7c136df-57b9-4c3f-8285-945c94f5d595" />
+* ### Master Data
+<img width="1474" height="718" alt="Screenshot_24-11-2026_14236_localhost" src="https://github.com/user-attachments/assets/f072241c-2b8b-402c-a370-49b43e48dc2a" />
 
 ---
 
