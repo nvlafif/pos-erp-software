@@ -14,6 +14,34 @@ An integrated **Point-of-Sale (POS)** and **Enterprise Resource Planning (ERP)**
 
 ---
 
+## User Interface & Feature Showcase
+
+* **Login**
+<img width="1474" height="718" alt="Screenshot_24-11-2026_14049_localhost" src="https://github.com/user-attachments/assets/8aed5a17-20d4-4000-b9a3-edbd8f3a76f8" />
+
+* **Owner Dashboard**
+<img width="1474" height="1258" alt="Screenshot_24-11-2026_14136_localhost" src="https://github.com/user-attachments/assets/9529465f-9ed1-4fe8-b81b-9346b9e782b1" />
+
+* **Point of Sale (POS)**
+<img width="1474" height="718" alt="Screenshot_24-11-2026_14156_localhost" src="https://github.com/user-attachments/assets/ae342b12-e556-411f-81d6-3bb808accab0" />
+
+* **Transactions History**
+<img width="1474" height="749" alt="Screenshot_24-11-2026_1429_localhost" src="https://github.com/user-attachments/assets/00849f7c-f5bf-4159-9097-818dbf431fca" />
+
+* **Inventory Dashboard**
+<img width="1474" height="973" alt="Screenshot_24-11-2026_14226_localhost" src="https://github.com/user-attachments/assets/a3fab0a6-16e8-455d-82e9-91ba0c60ca28" />
+
+* **Master Data**
+<img width="1474" height="718" alt="Screenshot_24-11-2026_14236_localhost" src="https://github.com/user-attachments/assets/f072241c-2b8b-402c-a370-49b43e48dc2a" />
+
+* **Transaction Receipt**
+<img width="1474" height="772" alt="Screenshot_24-11-2026_1432_localhost" src="https://github.com/user-attachments/assets/b7c136df-57b9-4c3f-8285-945c94f5d595" />
+
+* **Product Catalog**
+<img width="1474" height="995" alt="Screenshot_24-11-2026_14433_localhost" src="https://github.com/user-attachments/assets/c1eac514-0cf2-4b90-87bb-4fe24fcf3119" />
+
+---
+
 ## Application Workflow
 
 ```text
